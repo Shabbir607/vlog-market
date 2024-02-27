@@ -8,7 +8,11 @@ use App\Models\Order;
 use App\Models\Product;
 use App\Models\Category;
 use App\Models\ProductReview;
+use App\Models\PostComment;
 use Carbon\Carbon;
+use App\Models\JobApplication;
+use App\Models\jobsave;
+use App\Models\Post;
 
 class HomeController extends Controller
 {
@@ -19,6 +23,7 @@ class HomeController extends Controller
      */
     public function __construct()
     {
+
         $this->middleware('auth');
     }
 
@@ -29,6 +34,7 @@ class HomeController extends Controller
      */
     public function index()
     {
+
         $products=Product::where('status','active')->orderBy('id','DESC')->limit(8)->get();
         $category=Category::where('status','active')->where('is_parent',1)->orderBy('title','ASC')->get();
 
@@ -42,7 +48,7 @@ class HomeController extends Controller
      {
        $array[++$key] = [$value->day_name, $value->count];
      }
-     
+
     //  return $data;
          // Check if the authenticated user is an admin
          $user = auth()->user(); // Assuming you're using Laravel's built-in authentication
@@ -51,14 +57,14 @@ class HomeController extends Controller
              // Admin login, redirect to admin dashboard
              return view('backend.index', ['data' => $data, 'array' => $array]);
          } else {
-           
+
              // User login, return the view for user.index
              return view('user.index', ['data' => $data, 'array' => $array])
                 ->with('product_lists',$products)
                 ->with('category_lists',$category);
          }
     }
-    
+
     // Order
     public function orderIndex(){
         $orders=Order::orderBy('id','DESC')->where('user_id',auth()->user()->id)->paginate(10);
@@ -216,6 +222,53 @@ class HomeController extends Controller
 
     }
 
+    public function jobindex()
+    {
+
+        $jobApplications = JobApplication::with('user')->orderBy('id')->where('user_id',auth()->user()->id)->paginate(10);
+
+        return view('user.job.index')->with('jobs', $jobApplications);
+    }
+    public function jobshow($id)
+    {
+        $jobs=JobApplication::find($id);
+        // dd($jobs);
+        // return $order;
+        return view('user.job.show')->with('job',$jobs);
+    }
+
+    //Jobs save
+    public function jobsaveindex()
+    {
+        $jobsave = JobSave::with('user', 'application')->orderBy('id')->where('user_id', auth()->user()->id)->paginate(10);
+
+        // Get unique application IDs from the saved jobs
+        $applicationIds = $jobsave->pluck('application_id')->unique()->toArray();
+
+        // Retrieve applications based on the IDs
+        $applications = post::whereIn('id', $applicationIds)->get();
+
+        return view('user.jobsave.index', [
+            'jobs' => $jobsave,
+            'applications' => $applications,
+        ]);
+    }
+
+public function destroy($id)
+{
+    $post = Post::findOrFail($id);
+
+    $status = $post->delete();
+
+    if ($status) {
+        request()->session()->flash('success', 'Post successfully deleted');
+    } else {
+        request()->session()->flash('error', 'Error while deleting post');
+    }
+
+    return redirect()->route('user.jobsave.index');
+}
+
     public function changePassword(){
         return view('user.layouts.userPasswordChange');
     }
@@ -226,9 +279,9 @@ class HomeController extends Controller
             'new_password' => ['required'],
             'new_confirm_password' => ['same:new_password'],
         ]);
-   
+
         User::find(auth()->user()->id)->update(['password'=> Hash::make($request->new_password)]);
-   
+
         return redirect()->route('user')->with('success','Password successfully changed');
     }
 

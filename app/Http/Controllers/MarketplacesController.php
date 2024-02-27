@@ -9,7 +9,7 @@ use App\Models\Category;
 use App\Models\Country;
 class MarketplacesController extends Controller
 {
-    
+
     /**
      * Display a listing of the resource.
      *
@@ -22,7 +22,7 @@ class MarketplacesController extends Controller
 
         $markets = Marketplace::with("country:id,name")->get();
         return view('backend.marketplaces.index', ['markets' => $markets] )->with('country',$country);
-    
+
     }
 
     /**
@@ -33,7 +33,7 @@ class MarketplacesController extends Controller
     public function create()
     {
         $country = Country::get();
-        
+
         return view('backend.marketplaces.create')->with('country',$country);
     }
 
@@ -49,13 +49,13 @@ class MarketplacesController extends Controller
 
             'name'=>'string|required',
             'country'=>'required',
-            
-    
+
+
         ]);
-    
+
         $fileModel = new Marketplace();
         $fileModel->name = $request->name;
-        $fileModel->country_id = $request->country;  
+        $fileModel->country_id = $request->country;
 
         $status = $fileModel->save();
         if($status){
@@ -108,7 +108,7 @@ class MarketplacesController extends Controller
             'title'=>'string|required',
         ]);
         $data=$request->all();
-       
+
         $status=$brand->fill($data)->save();
         if($status){
             request()->session()->flash('success','Brand successfully updated');

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\JobApplication;
+use App\Models\jobapply;
 
 class JobApplyController extends Controller
 {
@@ -14,9 +15,10 @@ class JobApplyController extends Controller
      */
     public function index()
     {
-        $jobs=JobApplication::orderBy('id')->paginate(10);
-        // dd($jobs);
-        return view('backend.jobapply.index')->with('jobs',$jobs);
+        
+        $jobApplications = JobApplication::with('user')->orderBy('id')->paginate(10);
+        
+        return view('backend.jobapply.index')->with('jobs', $jobApplications);
     }
 
     /**
@@ -46,8 +48,9 @@ class JobApplyController extends Controller
     public function show($id)
     {
         $jobs=JobApplication::find($id);
+       //dd($jobs);
         // return $order;
-        return view('backend.jobapply.show')->with('jobs',$jobs);
+        return view('backend.jobapply.show')->with('job',$jobs);
     }
 
     /**

@@ -14,7 +14,10 @@ class Category extends Model
     public static function getAllCategory(){
         return  Category::orderBy('id','DESC')->with('parent_info')->paginate(10);
     }
-
+    public function stores()
+    {
+        return $this->hasMany(Category::class);
+    }
     public static function shiftChild($cat_id){
         return Category::whereIn('id',$cat_id)->update(['is_parent'=>1]);
     }
@@ -34,6 +37,7 @@ class Category extends Model
     public function sub_products(){
         return $this->hasMany('App\Models\Product','child_cat_id','id')->where('status','active');
     }
+
     public static function getProductByCat($slug){
         // dd($slug);
         return Category::with('products')->where('slug',$slug)->first();

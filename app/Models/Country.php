@@ -2,17 +2,17 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory; // Import the HasFactory trait
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Country extends Model
 {
-    use HasFactory; // Use the HasFactory trait
+    use HasFactory;
 
     protected $fillable = ['code', 'name'];
 
-    public function country()
+    public function countries()
     {
-        return $this->belongsTo(Country::class,"name");
+        return $this->belongsTo(Country::class, 'country_id');
     }
 }

@@ -11,17 +11,18 @@ class CountryController extends Controller
     public function selectCountry()
     {
         $countries = Country::all()->pluck('name', 'code');
+//        dd($countries);
         return view('frontend.country', compact('countries'));
     }
 
     public function postCountry(Request $request)
-    { 
+    {
         $selectedCountryCode = $request->input('country');
 
         $countryRoutes = [
             'PK' => 'pakistan-route',
             'IN' => 'india-route',
-            'AE' => 'uae-route',
+            'AE' => 'uae-route'
         ];
 
         if (array_key_exists($selectedCountryCode, $countryRoutes)) {
@@ -35,50 +36,81 @@ class CountryController extends Controller
         return redirect('/');
     }
 
+
     public function showPakistan()
-    { 
-        $selectedCountry = 'Pakistan';
-        
-        $countryCode = 'PK'; // Replace with the actual country code for Pakistan
-        $country = Country::where('code', $countryCode)->first();
+    {
+        // Selected country details
+        $selectedCountryName = 'Pakistan';
+        $selectedCountryCode = 'PK';
 
-        $markets = Marketplace::with("country:id,name")->get();
+        // Get the Country model for the selected country
+        $country = Country::where('code', $selectedCountryCode)->first();
 
-        // dd($markets);
-        return view('pakistan',['markets' => $markets])->with([
-            'selectedCountry' => $selectedCountry 
-        ]);
-    
-        $markets = Marketplace::with("country:id,name")->get();
-        return view('backend.marketplaces.index', ['markets' => $markets] )->with('country',$country);
-    
+        // Check if the country is not found
+        if (!$country) {
+            abort(404, 'Country not found');
+        }
+
+        // Get the Marketplaces where country_id is the same as the selected country
+        $markets = Marketplace::where('country_id', $country->id)->get();
+
+        // Get the Categories where market_id is 1 (you may need to adjust this condition)
+        $categories = Category::where('market_id', 1)->get();
+
+        // Pass the data to the view
+        return view('frontend.pages.pakistan', compact('categories', 'markets'));
+    }
+
+    public function showIndia()
+    {
+
+        // Selected country details
+        $selectedCountryName = 'India';
+        $selectedCountryCode = 'IN';
+
+        // Get the Country model for the selected country
+        $country = Country::where('code', $selectedCountryCode)->first();
+
+        // Check if the country is not found
+        if (!$country) {
+            abort(404, 'Country not found');
+        }
+
+        // Get the Marketplaces where country_id is the same as the selected country
+        $markets = Marketplace::where('country_id', $country->id)->get();
+
+        // Get the Categories where market_id is 1 (you may need to adjust this condition)
+        $categories = Category::where('market_id', 2)->get();
+
+
+        // Pass the data to the view
+        return view('frontend.pages.india', compact('categories', 'markets'));
     }
 
     public function showUae()
     {
-        $selectedCountry = 'UAE'; // Replace with the actual selected country
-    
-        $country = new Country(); // Assuming you have a Country model
-    
-        $marketplaces = $country->marketplaces ?? [];
-        
-        $market = new Marketplace();
-    
-        $categoryId = 1; // Replace with the actual category ID
-        $category = new Category();
-    
-        try {
-            $categoryInfo = $category->getCategoryInfo($categoryId);
-        } catch (\Exception $e) {
-            // Handle the case where the category is not found
-            abort(404, 'Category not found');
+
+        // Selected country details
+        $selectedCountryName = 'United Arab Emirates';
+        $selectedCountryCode = 'AE';
+
+        // Get the Country model for the selected country
+        $country = Country::where('code', $selectedCountryCode)->first();
+
+        // Check if the country is not found
+        if (!$country) {
+            abort(404, 'Country not found');
         }
-    
-        return view('uae')->with([
-            'selectedCountry' => $selectedCountry,
-            'marketplaces' => $marketplaces,
-            'categoryInfo' => $categoryInfo,
-        ]);
+
+        // Get the Marketplaces where country_id is the same as the selected country
+        $markets = Marketplace::where('country_id', $country->id)->get();
+
+        // Get the Categories where market_id is 1 (you may need to adjust this condition)
+        $categories = Category::where('market_id', 3)->get();
+
+
+        // Pass the data to the view
+        return view('frontend.pages.uae', compact('categories', 'markets'));
     }
 
     public function showCities($countryCode)
@@ -98,5 +130,5 @@ class CountryController extends Controller
         return $country->marketplaces; // Assuming you have a relationship defined in the Country model
     }
 
-    
+
 }

@@ -26,7 +26,7 @@ class ProductController extends Controller
     public function index()
     {
         $product=Product::getAllProduct();
-        
+
         return view('backend.product.products',["products"=>$product]);
     }
 /**
@@ -38,8 +38,9 @@ class ProductController extends Controller
     {
         $brand=Brand::get();
         $category=Category::where('is_parent',1)->get();
+        $sub_cats=Category::where('is_parent',0)->get();
         // return $category;
-        return view('backend.product.create')->with('categories',$category)->with('brands',$brand);
+        return view('backend.product.create')->with('categories',$category)->with('brands',$brand)->with('sub_cats',$sub_cats);
     }
 
     /**
@@ -50,26 +51,7 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
-       // return $request->all();
-    
-    //    $this->validate($request,[
-    //     'title'=>'string|required',
-    //     'summary'=>'string|required',
-    //     'description'=>'string|nullable',
-    //     'photo'=>'required',
-    //     'size'=>'nullable',
-    //     'stock'=>"required|numeric",
-    //     'cat_id'=>'required|exists:categories,id',
-    //     'brand_id'=>'nullable|exists:brands,id',
-    //     'child_cat_id'=>'nullable|exists:categories,id',
-    //     'is_featured'=>'sometimes|in:1',
-    //     'status'=>'required|in:active,inactive',
-    //     'condition'=>'required|in:default,new,hot',
-    //     'price'=>'required|numeric',
-    //     'discount'=>'nullable|numeric'
-    // ]);
-        
-   
+
 
     $request->validate([
 
@@ -94,30 +76,30 @@ class ProductController extends Controller
 
 
     $fileModel->title = $request->title;
-    $fileModel->summary = $request->summary;    
+    $fileModel->summary = $request->summary;
     $fileModel->description = $request->description;
-    if ($request->hasFile('photo')) 
+    if ($request->hasFile('photo'))
     {
-        
+
         $photoPath = time() . '_' . $request->file('photo')->getClientOriginalName();
-       
+
         $request->file('photo')->move(public_path('images/'), $photoPath);
-   
+
         $fileModel->photo = $photoPath;
     }
 
     // $fileModel->size = $request->size;
     $fileModel->stock = $request->stock;
     $fileModel->cat_id = $request->cat_id;
-    $fileModel->brand_id = $request->brand_id;    
+    $fileModel->brand_id = $request->brand_id;
     $fileModel->child_cat_id = $request->child_cat_id;
     $fileModel->is_featured = $request->is_featured;
     $fileModel->status = $request->status;
     $fileModel->condition = $request->condition;
     $fileModel->price = $request->price;
     $fileModel->discount = $request->discount;
-    
-        
+
+
 
         $slug=Str::slug($request->title);
         $count=Product::where('slug',$slug)->count();
@@ -234,7 +216,7 @@ class ProductController extends Controller
     {
         $product=Product::findOrFail($id);
         $status=$product->delete();
-        
+
         if($status){
             request()->session()->flash('success','Product successfully deleted');
         }

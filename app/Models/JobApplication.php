@@ -12,6 +12,7 @@ class JobApplication extends Model
 
     protected $fillable = [
     'name',
+    'user_id',
     'date_of_birth',
     'current_location',
     'gender',
@@ -27,6 +28,16 @@ class JobApplication extends Model
     'drop_note',
     'cv_path',
     'post_cat_id',
+    'status',
+    'application_number',
+    
 ];
-   
+public function user()
+{
+return $this->belongsTo(User::class);
+}
+public function application()
+{
+    return $this->belongsTo(JobApplication::class, 'application_number');
+}
 }

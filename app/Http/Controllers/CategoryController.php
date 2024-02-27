@@ -33,7 +33,7 @@ class CategoryController extends Controller
         $parent_cats=Category::where('is_parent',1)->orderBy('title','ASC')->get();
         return view('backend.category.create')->with('parent_cats',$parent_cats)
         ->with('markets',$markets);
-        
+
     }
 
     /**
@@ -63,21 +63,21 @@ class CategoryController extends Controller
             'parent_id'=>'nullable|exists:categories,id',
             'is_parent'=>'sometimes|in:1',
             'status'=>'required|in:active,inactive',
-            
-    
+
+
         ]);
-    
+
         $fileModel = new Category();
 
         $fileModel->title = $request->title;
-    $fileModel->summary = $request->summary; 
-      
-    if ($request->hasFile('photo')) 
+    $fileModel->summary = $request->summary;
+
+    if ($request->hasFile('photo'))
     {
         $photoPath = time() . '_' . $request->file('photo')->getClientOriginalName();
-       
+
         $request->file('photo')->move(public_path('images/'), $photoPath);
-      
+
         $fileModel->photo = $photoPath;
     }
     $fileModel->parent_id = $request->parent_id;
@@ -85,7 +85,7 @@ class CategoryController extends Controller
     $fileModel->status = $request->status;
     $fileModel->country_id = $request->country;
     $fileModel->market_id = $request->market;
-    
+
         // $data= $request->all();
 
         $slug=Str::slug($request->title);
@@ -95,7 +95,7 @@ class CategoryController extends Controller
         }
         $fileModel['slug']=$slug;
         $fileModel['is_parent']=$request->input('is_parent',0);
-        // return $data;   
+        // return $data;
         // $status=Category::create($data);
         if($fileModel){
             request()->session()->flash('success','Category successfully added');
@@ -172,23 +172,24 @@ class CategoryController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
-    {
-        $category=Category::findOrFail($id);
-        $child_cat_id=Category::where('parent_id',$id)->pluck('id');
-        // return $child_cat_id;
-        $status=$category->delete();
-        
-        if($status){
-            if(count($child_cat_id)>0){
-                Category::shiftChild($child_cat_id);
-            }
-            request()->session()->flash('success','Category successfully deleted');
+{
+    $category = Category::findOrFail($id);
+    $child_cat_id = Category::where('parent_id', $id)->pluck('id');
+
+    $status = $category->delete();
+
+    if ($status) {
+        if (count($child_cat_id) > 0) {
+            Category::shiftChild($child_cat_id);
         }
-        else{
-            request()->session()->flash('error','Error while deleting category');
-        }
-        return redirect()->route('category.index');
+        request()->session()->flash('success', 'Category successfully deleted');
+    } else {
+        request()->session()->flash('error', 'Error while deleting category');
     }
+
+    return redirect()->route('/category');
+}
+
 
     public function getChildByParent(Request $request){
         // return $request->all();
