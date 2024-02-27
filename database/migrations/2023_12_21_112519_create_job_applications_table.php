@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('job_applications', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->unsignedBigInteger('user_id')->nullable();
             $table->date('date_of_birth');
             $table->string('gender');
             $table->string('nationality');
@@ -28,9 +29,11 @@ return new class extends Migration
             $table->string('record_video');
             $table->text('drop_note')->nullable();
             $table->string('cv_path')->nullable();
-            
-            $table->unsignedBigInteger('post_cat_id')->nullable();
-            $table->foreign('post_cat_id')->references('id')->on('posts')->onDelete('SET NULL');
+            $table->enum('status',['new','review','interview','offer','rejected'])->default('new');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('SET NULL');
+            $table->string('application_number')->unique();
+            $table->unsignedBigInteger('post_id')->nullable();
+            $table->foreign('post_id')->references('id')->on('posts')->onDelete('SET NULL');
             $table->timestamps();
         });
     }

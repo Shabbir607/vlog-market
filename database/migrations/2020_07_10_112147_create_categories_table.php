@@ -25,7 +25,7 @@ class CreateCategoriesTable extends Migration
             $table->unsignedBigInteger('added_by')->nullable();
             $table->enum('status', ['active', 'inactive'])->default('inactive');
             $table->unsignedBigInteger('market_id')->nullable();
-            $table->foreign('market_id')->references('id')->on('markets')->onDelete('SET NULL');
+            $table->foreign('market_id')->references('id')->on('marketplaces')->onDelete('SET NULL');
             $table->unsignedBigInteger('country_id')->nullable(); // Added missing country_id column
             $table->foreign('parent_id')->references('id')->on('categories')->onDelete('SET NULL');
             $table->foreign('added_by')->references('id')->on('users')->onDelete('SET NULL');
